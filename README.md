@@ -72,7 +72,54 @@ xhost +local:
 xhost -local:
 ```
 
-### 2. Run the terminal inside the container
+### 2a. (Only for creating project) Create a single-repo project
+! Do not forget to replace with your own project name, directory, and github username !
+```bash
+./scripts/new-project.sh --name mybot-nav --dir ~/Documents/Projects --type single --gh Kyaw-Thiha
+```
+
+
+### 2b. (Only for creating project) Create a multi-repo project
+! Do not forget to replace with your own project name, directory, and github username !
+```bash
+./scripts/new-project.sh --name perception-stack --dir ~/Documents/Projects --type meta --gh Kyaw-Thiha 
+```
+
+### 3. Mount into your project
+Ensure you already create the project before
+```bash
+./scripts/workon.sh ~/Documents/Projects/perception-stack
+```
+
+### 4a. Run code inside the single-repo container
+Ensure you are already mounted into the container.
+#### (a) Create a package (Only for single-repo)
+```bash
+./scripts/create_pkg.sh mybot_nav --dependencies rclcpp std_msgs
+```
+
+#### (b) Build the package
+```bash
+./scripts/build.sh
+```
+
+### 4b. Run code inside the multi-repo container
+#### (a) Sync the packages
+```bash
+./scripts/sync.sh
+```
+
+#### (b) Build the packages
+```bash
+./scripts/build.sh
+```
+
+#### (c) Freeze the packages
+```bash
+./scripts/freeze.sh
+```
+
+## Run the terminal inside the container
 ```bash
 ./scripts/ros-sh.sh
 ```

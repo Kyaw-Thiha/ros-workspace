@@ -6,6 +6,7 @@ log/
 .venv/
 # local config
 .env
+.local
 # IDE/editor clutter
 .vscode/
 .idea/
