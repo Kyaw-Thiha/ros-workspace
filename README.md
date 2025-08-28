@@ -51,6 +51,17 @@ fi
 # --- end fzf init ---
 ```
 
+## XHost 
+### Enabling
+```bash
+xhost +local:
+```
+
+### Disabling
+```bash
+xhost -local:
+```
+
 ## Get GPU working
 ### Installation
 Install `nvidia-container-toolkit` on host.
