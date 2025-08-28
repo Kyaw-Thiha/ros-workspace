@@ -11,13 +11,11 @@ CLI Commands:
 chmod +x scripts/*
 ```
 
-## Build the container
-```bash
-docker-compose build
-```
+## Installation
+### 1. Clone this repo
 
-## Ensure zsh & lua works for docker settings too
-### Lua Fix
+### 2. Ensure zsh & lua works for docker settings too
+#### 2a. Lua Fix
 In the host (not remote) machine.
 Inside `~/.config/nvim/lua/config/lazy.lua`, ensure you have the following lockfile snippet.
 ```lua
@@ -28,7 +26,7 @@ require("lazy").setup({
 })
 ```
 
-### Zsh fix
+#### 2b. Zsh fix
 Inside `~/.zshrc`, ensure that you have 'maybe' for unimportant plugins
 ```lua
 # Detect container & guard optional tools
@@ -56,15 +54,27 @@ fi
 # --- end fzf init ---
 ```
 
-## XHost 
-### Enabling
+### 3. Build the container
+```bash
+cd ros-workspace
+docker-compose build
+```
+
+## Running
+### 1. XHost 
+#### Enabling
 ```bash
 xhost +local:
 ```
 
-### Disabling
+#### Disabling
 ```bash
 xhost -local:
+```
+
+### 2. Run the terminal inside the container
+```bash
+./scripts/ros-sh.sh
 ```
 
 ## Get GPU working
