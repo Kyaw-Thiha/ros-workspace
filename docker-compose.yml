@@ -1,0 +1,76 @@
+services:
+  ros:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    image: ros-kilted-dev:latest
+    container_name: ros-kilted
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    working_dir: /work
+    tty: true
+    stdin_open: true
+    # gpus: all
+    environment:
+      # Home & locale
+      - HOME=/home/dev
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      # ROS niceties
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      # Wayland / XWayland
+      - XDG_RUNTIME_DIR=/run/user/${USER_ID}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - DISPLAY=${DISPLAY}                 # XWayland fallback
+      - QT_QPA_PLATFORM=wayland            # switch to xcb if Wayland acts up
+      - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${USER_ID}/bus
+      # Kitty Term settings
+      - TERM=${TERM}
+      # Nvidia GPU
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+    volumes:
+      # Your code
+      - ./:/work
+      # A writable home for the "dev" user
+      - devhome:/home/dev
+      # Wayland socket & session bus
+      - /run/user/${USER_ID}:/run/user/${USER_ID}
+      # XWayland socket (fallback)
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Neovim config + caches (so nvim feels native & fast)
+      - ~/.config/nvim:/home/dev/.config/nvim:ro
+      - ~/.local/share/nvim:/home/dev/.local/share/nvim
+      - ~/.cache/nvim:/home/dev/.cache/nvim
+      - ~/.local/state:/home/dev/.local/state
+      # Optional: tool caches
+      - ~/.cache/pip:/home/dev/.cache/pip
+      - ~/.cache/clangd:/home/dev/.cache/clangd
+      - ~/.cache/colcon:/home/dev/.cache/colcon
+      # zsh dotfiles (mount what you use)
+      - ~/.zshrc:/home/dev/.zshrc
+      - ~/.zprofile:/home/dev/.zprofile
+      - ~/.zshenv:/home/dev/.zshenv
+      # Optional: oh-my-zsh / zinit / powerlevel10k
+      - ~/.oh-my-zsh:/home/dev/.oh-my-zsh
+      - ~/.p10k.zsh:/home/dev/.p10k.zsh
+      # use a bind mount for home
+      - ~/docker-ros-home:/home/dev
+    devices:
+      - /dev/dri:/dev/dri       # GPU (Intel/AMD Mesa)
+    group_add:
+      - "video"
+    # NVIDIA: ensure nvidia-container-toolkit is installed on host:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+    # entrypoint: ["/usr/local/bin/entrypoint.sh"]
+
+
+volumes:
+  devhome:
+

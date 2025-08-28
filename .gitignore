@@ -1,0 +1,11 @@
+# ROS 2 & Python build artifacts
+build/
+install/
+log/
+.colcon/
+.venv/
+# local config
+.env
+# IDE/editor clutter
+.vscode/
+.idea/
