@@ -58,6 +58,9 @@ services:
       - ~/.p10k.zsh:/home/dev/.p10k.zsh
       # use a bind mount for home
       - ~/docker-ros-home:/home/dev
+      # SSH 
+      - ~/.ssh:/home/dev/.ssh:ro
+      - ~/.gitconfig:/home/dev/.gitconfig:ro
     devices:
       - /dev/dri:/dev/dri       # GPU (Intel/AMD Mesa)
     group_add:
