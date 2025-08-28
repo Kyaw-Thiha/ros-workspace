@@ -37,6 +37,12 @@ RUN set -eux; \
   rm -rf /root/go && \
   rm -rf /var/lib/apt/lists/*
 
+# --- Clang and colcon for ROS Nvim ---
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    clangd clang-format python3-colcon-mixin \
+ && rm -rf /var/lib/apt/lists/*
+
+
 
 # --- Newer Neovim (>= 0.10) from the official PPA ---
 # RUN apt-get update && apt-get purge -y neovim neovim-runtime || true && \
