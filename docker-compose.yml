@@ -8,14 +8,15 @@ services:
         GROUP_ID: ${GROUP_ID:-1000}
     image: ros-kilted-dev:latest
     container_name: ros-kilted
-    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    # user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    user: ubuntu
     working_dir: /work
     tty: true
     stdin_open: true
     # gpus: all
     environment:
       # Home & locale
-      - HOME=/home/dev
+      - HOME=/home/ubuntu
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
       # ROS niceties
@@ -35,32 +36,32 @@ services:
       # Your code
       - ./:/work
       # A writable home for the "dev" user
-      - devhome:/home/dev
+      - devhome:/home/ubuntu
       # Wayland socket & session bus
       - /run/user/${USER_ID}:/run/user/${USER_ID}
       # XWayland socket (fallback)
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Neovim config + caches (so nvim feels native & fast)
-      - ~/.config/nvim:/home/dev/.config/nvim:ro
-      - ~/.local/share/nvim:/home/dev/.local/share/nvim
-      - ~/.cache/nvim:/home/dev/.cache/nvim
-      - ~/.local/state:/home/dev/.local/state
+      - ~/.config/nvim:/home/ubuntu/.config/nvim:ro
+      - ~/.local/share/nvim:/home/ubuntu/.local/share/nvim
+      - ~/.cache/nvim:/home/ubuntu/.cache/nvim
+      - ~/.local/state:/home/ubuntu/.local/state
       # Optional: tool caches
-      - ~/.cache/pip:/home/dev/.cache/pip
-      - ~/.cache/clangd:/home/dev/.cache/clangd
-      - ~/.cache/colcon:/home/dev/.cache/colcon
+      - ~/.cache/pip:/home/ubuntu/.cache/pip
+      - ~/.cache/clangd:/home/ubuntu/.cache/clangd
+      - ~/.cache/colcon:/home/ubuntu/.cache/colcon
       # zsh dotfiles (mount what you use)
-      - ~/.zshrc:/home/dev/.zshrc
-      - ~/.zprofile:/home/dev/.zprofile
-      - ~/.zshenv:/home/dev/.zshenv
+      - ~/.zshrc:/home/ubuntu/.zshrc
+      - ~/.zprofile:/home/ubuntu/.zprofile
+      - ~/.zshenv:/home/ubuntu/.zshenv
       # Optional: oh-my-zsh / zinit / powerlevel10k
-      - ~/.oh-my-zsh:/home/dev/.oh-my-zsh
-      - ~/.p10k.zsh:/home/dev/.p10k.zsh
+      - ~/.oh-my-zsh:/home/ubuntu/.oh-my-zsh
+      - ~/.p10k.zsh:/home/ubuntu/.p10k.zsh
       # use a bind mount for home
-      - ~/docker-ros-home:/home/dev
+      # - ~/docker-ros-home:/home/dev
       # SSH 
-      - ~/.ssh:/home/dev/.ssh:ro
-      - ~/.gitconfig:/home/dev/.gitconfig:ro
+      - ~/.ssh:/home/ubuntu/.ssh:ro
+      - ~/.gitconfig:/home/ubuntu/.gitconfig:ro
     devices:
       - /dev/dri:/dev/dri       # GPU (Intel/AMD Mesa)
     group_add:
@@ -75,5 +76,5 @@ services:
 
 
 volumes:
-  devhome:
+  devhome: {}
 

@@ -9,8 +9,8 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 
 # Create non-root user "dev" that matches your host UID/GID
-RUN groupadd -g ${GROUP_ID} dev || true && \
-    useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /usr/bin/zsh dev || true
+# RUN groupadd -g ${GROUP_ID} dev || true && \
+#     useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /usr/bin/zsh dev || true
 
 # RUN groupadd -g ${GROUP_ID} dev || true && \
 #     useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /usr/bin/bash dev || true
@@ -33,8 +33,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qtwayland5 qt6-wayland mesa-utils \
  && rm -rf /var/lib/apt/lists/*
 
+# passwordless sudo for ubuntu + prep ros home with correct ownership
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
+    chmod 0440 /etc/sudoers.d/ubuntu && \
+    mkdir -p /home/ubuntu/.ros/log && \
+    chown -R ubuntu:ubuntu /home/ubuntu
+
 # Passwordless sudo (optional; convenient for rosdep init once)
-RUN echo "dev ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/dev
+# RUN echo "dev ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/dev
 
 USER dev
 WORKDIR /work
