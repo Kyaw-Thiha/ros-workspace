@@ -1,6 +1,11 @@
 # ROS Workspace
 This is a ROS-2 (Kilted) workspace container that automatically copy & setup the zsh & nvim based on local configs.
 
+CLI Commands:
+- rviz2-x11
+- rqt-x11
+- gz-gui-x11
+
 ## Give permissions to run scripts
 ```bash
 chmod +x scripts/*

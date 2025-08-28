@@ -33,6 +33,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qtwayland5 qt6-wayland mesa-utils \
  && rm -rf /var/lib/apt/lists/*
 
+# --- Rqt on Ubuntu 24.04 (Noble) ---
+RUN apt-get update && apt-get install -y \
+  ros-$ROS_DISTRO-rqt \
+  ros-$ROS_DISTRO-rqt-common-plugins \
+  ros-$ROS_DISTRO-rqt-graph \
+  ros-$ROS_DISTRO-rqt-image-view \
+  ros-$ROS_DISTRO-rqt-plot \
+ && rm -rf /var/lib/apt/lists/*
+
+# --- Gazebo (modern "gz") on Ubuntu 24.04 (Noble) ---
+# Adds OSRF repo and installs Gazebo (Ionic is the officially documented Noble target).
+# If you prefer Harmonic for tighter ROS 2 Jazzy parity, you can swap 'gz-ionic' => 'gz-harmonic'.
+RUN apt-get update && apt-get install -y --no-install-recommends lsb-release gnupg && \
+    curl -fsSL https://packages.osrfoundation.org/gazebo.gpg | sudo tee /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg >/dev/null && \
+    sh -c 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
+    apt-get update && apt-get install -y --no-install-recommends \
+      gz-ionic \
+      ros-$ROS_DISTRO-ros-gz \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Convenience wrappers (XWayland only) ---
+# Keep Wayland default for everything else; force only Gazebo GUIs to X11
+RUN printf '#!/usr/bin/env bash\nset -e\nexport QT_QPA_PLATFORM=xcb\nunset WAYLAND_DISPLAY || true\nexec gz \"$@\"\n' > /usr/local/bin/gz-x11 && chmod +x /usr/local/bin/gz-x11 && \
+    printf '#!/usr/bin/env bash\nset -e\nexport QT_QPA_PLATFORM=xcb\nunset WAYLAND_DISPLAY || true\nexec gz sim \"$@\"\n' > /usr/local/bin/gz-sim-x11 && chmod +x /usr/local/bin/gz-sim-x11 && \
+    printf '#!/usr/bin/env bash\nset -e\nexport QT_QPA_PLATFORM=xcb\nunset WAYLAND_DISPLAY || true\nexec gz gui \"$@\"\n' > /usr/local/bin/gz-gui-x11 && chmod +x /usr/local/bin/gz-gui-x11
+
 # passwordless sudo for ubuntu + prep ros home with correct ownership
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
     chmod 0440 /etc/sudoers.d/ubuntu && \
