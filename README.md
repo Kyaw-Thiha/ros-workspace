@@ -75,14 +75,14 @@ xhost -local:
 ### 2a. (Only for creating project) Create a single-repo project
 ! Do not forget to replace with your own project name, directory, and github username !
 ```bash
-./scripts/new-project.sh --name mybot-nav --dir ~/Documents/Projects --type single --gh Kyaw-Thiha
+./scripts/new-project.sh --name mybot-nav --dir ~/Documents/Projects --type single --gh Kyaw-Thiha --public
 ```
 
 
 ### 2b. (Only for creating project) Create a multi-repo project
 ! Do not forget to replace with your own project name, directory, and github username !
 ```bash
-./scripts/new-project.sh --name perception-stack --dir ~/Documents/Projects --type meta --gh Kyaw-Thiha 
+./scripts/new-project.sh --name perception-stack --dir ~/Documents/Projects --type meta --gh Kyaw-Thiha --public
 ```
 
 ### 3. Mount into your project
@@ -149,6 +149,18 @@ services:
           devices:
             - capabilities: [gpu]
 
+```
+
+## Installing GH
+Ensure `gh` is install for the `./scripts/new-project.sh` to be able to create the new github repo on your account.
+### 1. Install gh
+```bash
+yay -S github-cli
+```
+
+### 2. Login to gh
+```bash
+gh auth login
 ```
 
 ## Run these inside container
