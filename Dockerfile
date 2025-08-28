@@ -17,7 +17,8 @@ ARG GROUP_ID=1000
 
 # Dev tooling + quality-of-life
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    neovim ripgrep git curl ca-certificates sudo \
+    # neovim ripgrep git curl ca-certificates sudo \
+    ripgrep git curl ca-certificates sudo \
     zsh kitty-terminfo \
     python3-venv python3-pip \
     python3-colcon-common-extensions \
@@ -29,9 +30,42 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsd eza \
  && rm -rf /var/lib/apt/lists/*
 
+# --- Lazygit CLI (build from source with Go) ---
+RUN set -eux; \
+  apt-get update && apt-get install -y --no-install-recommends git golang ca-certificates && \
+  GOBIN=/usr/local/bin GOPATH=/root/go GO111MODULE=on go install github.com/jesseduffield/lazygit@latest && \
+  rm -rf /root/go && \
+  rm -rf /var/lib/apt/lists/*
+
+
+# --- Newer Neovim (>= 0.10) from the official PPA ---
+# RUN apt-get update && apt-get purge -y neovim neovim-runtime || true && \
+#     apt-get install -y --no-install-recommends software-properties-common curl ca-certificates && \
+#     add-apt-repository -y ppa:neovim-ppa/stable && \
+#     apt-get update && apt-get install -y --no-install-recommends neovim && \
+#     nvim --headless +"lua assert(vim.version().minor>=10, 'Need Neovim >= 0.10')" +qa && \
+#     rm -rf /var/lib/apt/lists/*
+
+# --- Neovim via official binary (guaranteed >= 0.10) ---
+# Pin to a specific stable version and verify checksum to avoid partial/HTML downloads.
+ARG NEOVIM_VERSION=0.10.3
+RUN set -eux; \
+    apt-get update && apt-get purge -y neovim neovim-runtime || true; \
+    apt-get install -y --no-install-recommends ca-certificates curl; \
+    url_base="https://github.com/neovim/neovim/releases/download/v${NEOVIM_VERSION}"; \
+    curl -fL --retry 5 --retry-delay 2 -o /tmp/nvim-linux64.tar.gz "${url_base}/nvim-linux64.tar.gz"; \
+    curl -fL --retry 5 --retry-delay 2 -o /tmp/nvim-linux64.tar.gz.sha256sum "${url_base}/nvim-linux64.tar.gz.sha256sum"; \
+    (cd /tmp && sha256sum -c nvim-linux64.tar.gz.sha256sum); \
+    tar -xzf /tmp/nvim-linux64.tar.gz -C /opt; \
+    ln -sfn /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim; \
+    nvim --headless +"lua assert(vim.version().minor>=10, 'Need Neovim >= 0.10')" +qa; \
+    rm -f /tmp/nvim-linux64.tar.gz /tmp/nvim-linux64.tar.gz.sha256sum
+
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     qtwayland5 qt6-wayland mesa-utils \
  && rm -rf /var/lib/apt/lists/*
+
 
 # --- Rqt on Ubuntu 24.04 (Noble) ---
 RUN apt-get update && apt-get install -y \

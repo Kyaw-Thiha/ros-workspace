@@ -54,6 +54,7 @@ services:
       - ~/.cache/pip:/home/ubuntu/.cache/pip
       - ~/.cache/clangd:/home/ubuntu/.cache/clangd
       - ~/.cache/colcon:/home/ubuntu/.cache/colcon
+      - ~/.config/lazygit:/home/ubuntu/.config/lazygit
       # zsh dotfiles (mount what you use)
       - ~/.zshrc:/home/ubuntu/.zshrc
       - ~/.zprofile:/home/ubuntu/.zprofile
