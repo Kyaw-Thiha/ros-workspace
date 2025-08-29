@@ -56,5 +56,6 @@ $(printf "%s" "$env_file_block")
 EOF
 
 cd "$repo_root"
-docker compose -f docker-compose.yml -f "$override_file" up -d
-docker compose -f docker-compose.yml -f "$override_file" exec ros bash -lc 'printf "\n✅ Mounted at: %s\n" "$PWD"; ls -a; exec zsh -l || exec bash -l'
+# docker compose -f docker-compose.yml -f "$override_file" up -d --force-recreate
+# docker compose -f docker-compose.yml -f "$override_file" exec -w "/work/$proj_name" ros bash -lc 'source /opt/ros/kilted/setup.zsh; printf "\n✅ Mounted at: %s\n" "$PWD"; ls -a; exec zsh || exec bash'
+docker compose -f docker-compose.yml -f "$override_file" run --rm -w "/work/$proj_name" ros zsh -lc 'source /opt/ros/kilted/setup.zsh; printf "\n✅ Mounted at: %s\n" "$PWD"; ls -a; zsh'
