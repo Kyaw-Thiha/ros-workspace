@@ -417,10 +417,14 @@ set -a
 [[ -f "$root/.env" ]] && source "$root/.env"
 set +a
 
-# source ROS and optional underlay
+# source ROS and optional underlay (guard against nounset + unset AMENT_* vars)
+set +u
+: "${AMENT_TRACE_SETUP_FILES:=}"
+: "${AMENT_PYTHON_EXECUTABLE:=$(command -v python3 || true)}"
 source /opt/ros/${ROS_DISTRO:-kilted}/setup.bash
 # Example underlay:
-# [ -f /work/underlay_ws/install/setup.bash ] && source /work/underlay_ws/install/setup.bash
+# if [[ -f /work/underlay_ws/install/setup.bash ]]; then source /work/underlay_ws/install/setup.bash; fi
+set -u
 
 cd "$root/ws"
 colcon build --symlink-install "$@"
@@ -451,13 +455,33 @@ if [[ ${1:-} == "--py" ]]; then
   shift
 fi
 
+# ... keep everything above unchanged ...
+
 pkg="$1"; shift || true
 deps=("$@")
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 mkdir -p "$root/ws/src"
 cd "$root/ws"
+
+# Guard against nounset + unset AMENT_* vars when sourcing ROS env
+set +u
+: "${AMENT_TRACE_SETUP_FILES:=}"
+: "${AMENT_PYTHON_EXECUTABLE:=$(command -v python3 || true)}"
 source /opt/ros/${ROS_DISTRO:-kilted}/setup.bash
-ros2 pkg create "$pkg" "${deps[@]/#/--dependencies }" --build-type "$build_type" --destination-directory src
+set -u
+
+# Build proper dependencies arg (accepts with or without a leading --dependencies)
+dep_args=()
+if [[ ${#deps[@]} -gt 0 ]]; then
+  if [[ "${deps[0]}" == "--dependencies" ]]; then
+    deps=("${deps[@]:1}")
+  fi
+  if [[ ${#deps[@]} -gt 0 ]]; then
+    dep_args=(--dependencies "${deps[@]}")
+  fi
+fi
+
+ros2 pkg create --build-type "$build_type" "${dep_args[@]}" --destination-directory src "$pkg"
 echo "Created $build_type package at ws/src/$pkg"
 EOF
 chmod +x "$proj_dir/scripts/create_pkg.sh"
