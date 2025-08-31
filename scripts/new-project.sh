@@ -196,14 +196,22 @@ On the host (outside the container), from your infra repo:
 Once inside the container:
 
 \`\`\`bash
-# (meta) fetch sources defined in ws.repos
+# (Only for multi-repo project) fetch sources defined in ws.repos
 [[ -f ./ws.repos ]] && ./scripts/sync.sh
 
 # build everything in ws/
 ./scripts/build.sh
+
+# load the workspace environment into your current shell
+source ws/install/setup.bash
+
+# (now you can run/launch nodes, e.g.)
+# ros2 run <package> <executable>
+# ros2 launch <package> <launch_file.py>
 \`\`\`
 
-> Tip: The build script forwards any extra args to \`colcon build\`. For example:
+> Single-repo projects: \`./scripts/sync.sh\` isn’t needed (no \`ws.repos\`).  
+> Tip: The build script forwards any extra args to \`colcon build\`. For example:  
 > \`./scripts/build.sh --packages-select my_pkg --symlink-install\`
 
 ---
