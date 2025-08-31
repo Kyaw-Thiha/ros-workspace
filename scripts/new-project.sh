@@ -300,19 +300,26 @@ Once inside the container:
 ---
 
 ### scripts/create_pkg.sh
-**Use when:** \(single projects\) You want to scaffold a new package under \`ws/src\`.
+**Use when:** \(single projects\) You want to scaffold a new package under $(ws/src).
 
 **What it does:**
 - Ensures ROS env is sourced.
-- Invokes \`ros2 pkg create\` with the given name and dependencies, creating the package under \`ws/src\`.
+- Invokes $(ros2 pkg create) with the given name and dependencies, creating the package under $(ws/src).
+- **Language selection:** Defaults to **C++** ($(ament_cmake)). Pass **$(--py) as the first argument** to create a **Python** package ($(ament_python)).
 
 **Examples:**
 \`\`\`bash
-# Minimal
+# Minimal (C++, default)
 ./scripts/create_pkg.sh my_pkg
 
-# With dependencies
+# Minimal (Python)
+./scripts/create_pkg.sh --py my_pkg
+
+# With dependencies (C++)
 ./scripts/create_pkg.sh my_pkg --dependencies rclcpp std_msgs sensor_msgs
+
+# With dependencies (Python)
+./scripts/create_pkg.sh --py my_pkg --dependencies rclpy std_msgs sensor_msgs
 \`\`\`
 
 > Note: Run this **inside the container**.
@@ -426,19 +433,24 @@ chmod +x "$proj_dir/scripts/clean.sh"
 cat >"$proj_dir/scripts/create_pkg.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ $# -lt 1 ]]; then
-  echo "Usage: scripts/create_pkg.sh <package_name> [--dependencies rclcpp std_msgs ...]"
-  exit 1
+usage(){ echo "Usage: scripts/create_pkg.sh [--py] <package_name> [--dependencies ...]"; }
+
+build_type="ament_cmake"
+[[ $# -ge 1 ]] || { usage; exit 1; }
+
+if [[ ${1:-} == "--py" ]]; then
+  build_type="ament_python"
+  shift
 fi
+
 pkg="$1"; shift || true
 deps=("$@")
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 mkdir -p "$root/ws/src"
 cd "$root/ws"
-# Ensure ROS env
 source /opt/ros/${ROS_DISTRO:-kilted}/setup.bash
-ros2 pkg create "$pkg" "${deps[@]/#/--dependencies }" --build-type ament_cmake --destination-directory src
-echo "Created package at ws/src/$pkg"
+ros2 pkg create "$pkg" "${deps[@]/#/--dependencies }" --build-type "$build_type" --destination-directory src
+echo "Created $build_type package at ws/src/$pkg"
 EOF
 chmod +x "$proj_dir/scripts/create_pkg.sh"
 
