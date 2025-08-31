@@ -128,6 +128,16 @@ RUN install -d -o ubuntu -g ubuntu /home/ubuntu/.cache \
 USER ubuntu
 WORKDIR /work
 
+# --- Getting pynvim and pyright working ---
+# Make Mason & user pip scripts visible
+ENV PATH="/home/ubuntu/.local/share/nvim/mason/bin:/home/ubuntu/.local/bin:${PATH}"
+
+# Python provider for nvim
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-pynvim && sudo rm -rf /var/lib/apt/lists/*
+
+# Pyright (LSP) globally; shows up as `pyright-langserver` on PATH
+RUN sudo npm install -g pyright
+
 # Add entrypoint script
 # USER root
 # COPY entrypoint.sh /usr/local/bin/entrypoint.sh
