@@ -58,4 +58,24 @@ EOF
 cd "$repo_root"
 # docker compose -f docker-compose.yml -f "$override_file" up -d --force-recreate
 # docker compose -f docker-compose.yml -f "$override_file" exec -w "/work/$proj_name" ros bash -lc 'source /opt/ros/kilted/setup.zsh; printf "\n✅ Mounted at: %s\n" "$PWD"; ls -a; exec zsh || exec bash'
-docker compose -f docker-compose.yml -f "$override_file" run --rm -w "/work/$proj_name" ros zsh -lc 'source /opt/ros/kilted/setup.zsh; printf "\n✅ Mounted at: %s\n" "$PWD"; ls -a; zsh'
+docker compose -f docker-compose.yml -f "$override_file" run --rm -w "/work/$proj_name" ros zsh -lc ' \
+  source /opt/ros/kilted/setup.zsh; \
+  printf "\n✅ Mounted at: %s\n" "$PWD"; \
+  ls -a; \
+  # Use clang toolchain
+  export CC=clang CXX=clang++; \
+  # Detect a colcon workspace at . or ./ws (common layouts)
+  WORKSPACE_DIR="."; \
+  if [ -d src ]; then WORKSPACE_DIR="."; elif [ -d ws/src ]; then WORKSPACE_DIR="ws"; fi; \
+  # Build once to produce compile_commands.json if missing
+  if [ ! -e compile_commands.json ]; then \
+    if [ -d "$WORKSPACE_DIR/src" ]; then \
+      ( cd "$WORKSPACE_DIR" && colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ); \
+    elif [ -f CMakeLists.txt ]; then \
+      # Fallback: plain CMake project (non-colcon) still generates compile_commands.json
+      cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON; \
+    fi; \
+  fi; \
+  # Workspace-level symlink for clangd
+  [ -f "$WORKSPACE_DIR/build/compile_commands.json" ] && ln -sf "$WORKSPACE_DIR/build/compile_commands.json" compile_commands.json || true; \
+  zsh'

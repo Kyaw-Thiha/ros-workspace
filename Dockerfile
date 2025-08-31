@@ -37,9 +37,9 @@ RUN set -eux; \
   rm -rf /root/go && \
   rm -rf /var/lib/apt/lists/*
 
-# --- Clang and colcon for ROS Nvim ---
+# --- Clang toolchain (compiler + LSP + format/tidy) for ROS Nvim ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    clangd clang-format python3-colcon-mixin \
+    clang clangd clang-format clang-tidy lldb lld ccache python3-colcon-mixin \
  && rm -rf /var/lib/apt/lists/*
 
 
